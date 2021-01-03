@@ -3,9 +3,7 @@ import os
 import tensorflow as tf
 from imgaug import augmenters as iaa
 from keras import backend as K
-
-from experiment import experiment
-from models import fcn_8
+from experiment import Experiment
 from utils.DataLoader import DataLoader
 
 sometimes = lambda aug: iaa.Sometimes(0.4, aug)
@@ -48,7 +46,7 @@ if __name__ == '__main__':
     val_gen = data_generation(img_dir_path=val_frame_path, batch_size=BATCH_SIZE,
                               inputshape=input_shape, labels_dir_path=val_mask_path)
 
-    experiment_object = experiment(inputshape=input_shape, learning_rate=lr, train_gen=train_gen, val_gen=val_gen)
+    experiment_object = Experiment(inputshape=input_shape, learning_rate=lr, train_gen=train_gen, val_gen=val_gen)
 
     STEP_PER_EPOCH = (len(os.listdir(train_frame_path)) // BATCH_SIZE)
     VAL_STEPS = (len(os.listdir(val_frame_path)) // BATCH_SIZE)

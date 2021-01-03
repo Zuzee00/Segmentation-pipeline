@@ -1,6 +1,5 @@
 import os
-import os
-import sys
+import numpy as np
 from keras.applications.resnet50 import *
 from keras.applications.vgg16 import *
 from keras.layers import *

@@ -1,4 +1,4 @@
-from experiment import experiment
+from experiment import Experiment
 
 if __name__ == '__main__':
 
@@ -6,7 +6,7 @@ if __name__ == '__main__':
     load = 'results/ckpt/FCN_Vgg16_32s_best_model_1.h5'
     test_path = 'images_nearmap/test_frames'
 
-    experiment_object = experiment()
+    experiment_object = Experiment()
     # Get define_model from experiment class
     model = experiment_object.define_model(pretrained_weights=load)
 

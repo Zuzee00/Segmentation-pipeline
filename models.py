@@ -1,9 +1,7 @@
 import os
-
 from keras.layers import *
 from keras.models import *
 from keras.regularizers import l2
-
 from utils.BilinearUpSampling import BilinearUpSampling2D
 from utils.resnet_helpers import conv_block, identity_block
 

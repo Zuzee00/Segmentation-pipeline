@@ -10,7 +10,7 @@ from utils.metrics import dice_coef_loss
 sometimes = lambda aug: iaa.Sometimes(0.4, aug)
 
 
-class experiment:
+class Experiment:
 
     def __init__(self, inputshape=(224, 224, 3), learning_rate=1E-5, train_gen=None, val_gen=None):
         self.inputshape = inputshape
@@ -74,7 +74,7 @@ class experiment:
         csv_logger = CSVLogger('./log.out', append=True, separator=';')
         reduce_lr = ReduceLROnPlateau(monitor='val_loss', factor=0.5, patience=6, min_lr=1e-7, verbose=1, mode='min')
 
-        callbacks_list = [csv_logger, checkpoint,reduce_lr]
+        callbacks_list = [csv_logger, checkpoint, reduce_lr]
 
         if pretrained_weights is not False:
             print("loading weights...")

@@ -1,10 +1,7 @@
-import matplotlib.pyplot as plt
-import json
-import random
-import cv2
-
-import numpy as np
 import os
+import cv2
+import matplotlib.pyplot as plt
+import numpy as np
 
 
 class DataLoader:
