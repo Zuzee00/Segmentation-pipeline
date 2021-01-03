@@ -25,8 +25,7 @@ class Experiment:
                 # scale images to 80-120% of their size, individually per axis
                 translate_percent={"x": (-0.2, 0.2), "y": (-0.2, 0.2)},  # translate by -20 to +20 percent (per axis)
                 rotate=(-45, 45),  # rotate by -45 to +45 degrees
-            )),
-        ], random_order=True)
+            )), ], random_order=True)
 
         # create output_folders
         self.output_folder = "results"
@@ -80,11 +79,11 @@ class Experiment:
             print("loading weights...")
             model.load_weights(pretrained_weights)
         print('Start training...')
-        results = model.fit_generator(self.train_generator, epochs=epochs,
-                                      steps_per_epoch=steps_per_epoch,
-                                      validation_data=self.val_generator,
-                                      validation_steps=validation_steps,
-                                      callbacks=callbacks_list)
+        results = model.fit(self.train_generator, epochs=epochs,
+                            steps_per_epoch=steps_per_epoch,
+                            validation_data=self.val_generator,
+                            validation_steps=validation_steps,
+                            callbacks=callbacks_list)
 
         model.save(f'{self.results_model_output}/Model_FINAL.h5')
 

@@ -2,7 +2,7 @@ import os
 
 import tensorflow as tf
 from imgaug import augmenters as iaa
-from keras import backend as K
+
 from experiment import Experiment
 from utils.DataLoader import DataLoader
 
@@ -11,14 +11,14 @@ sometimes = lambda aug: iaa.Sometimes(0.4, aug)
 
 def data_generation(labels_dir_path, img_dir_path, batch_size=4, inputshape=(224, 224, 3)):
     aug = iaa.Sequential([
-        #     iaa.Crop(px=(0, 40)),  # crop images from each side by 0 to 16px (randomly chosen)
+        iaa.Crop(px=(0, 40)),  # crop images from each side by 0 to 16px (randomly chosen)
         iaa.Fliplr(0.5),  # horizontally flip 50% of the images
-        #     sometimes(iaa.Affine(
-        #         scale={"x": (0.8, 1.2), "y": (0.8, 1.2)},
-        #         # scale images to 80-120% of their size, individually per axis
-        #         translate_percent={"x": (-0.2, 0.2), "y": (-0.2, 0.2)},  # translate by -20 to +20 percent (per axis)
-        #         rotate=(-45, 45),  # rotate by -45 to +45 degrees
-        #     )),
+        sometimes(iaa.Affine(
+            scale={"x": (0.8, 1.2), "y": (0.8, 1.2)},
+            # scale images to 80-120% of their size, individually per axis
+            translate_percent={"x": (-0.2, 0.2), "y": (-0.2, 0.2)},  # translate by -20 to +20 percent (per axis)
+            rotate=(-45, 45),  # rotate by -45 to +45 degrees
+        )),
     ], random_order=True)
     dataLoaderRGB = DataLoader(batch_size=batch_size, img_dir_path=img_dir_path,
                                labels_dir_path=labels_dir_path, input_shape=inputshape, aug=aug)
@@ -38,8 +38,8 @@ if __name__ == '__main__':
     lr = 1E-4
 
     # pre-trained model
-    # load = False
-    load = 'results/ckpt/FCN_Vgg16_32s_best_model_1.h5'
+    load = False
+    # load = 'results/ckpt/FCN_Vgg16_32s_best_model_1.h5'
 
     train_gen = data_generation(img_dir_path=train_frame_path, batch_size=BATCH_SIZE,
                                 inputshape=input_shape, labels_dir_path=train_mask_path)
@@ -51,10 +51,13 @@ if __name__ == '__main__':
     STEP_PER_EPOCH = (len(os.listdir(train_frame_path)) // BATCH_SIZE)
     VAL_STEPS = (len(os.listdir(val_frame_path)) // BATCH_SIZE)
 
-    config = tf.ConfigProto(gpu_options=tf.GPUOptions(allow_growth=True))
-    session = tf.Session(config=config)
-    K.set_session(session)
-
+    config = tf.compat.v1.ConfigProto(gpu_options=
+                                      tf.compat.v1.GPUOptions(per_process_gpu_memory_fraction=0.8)
+                                      # device_count = {'GPU': 1}
+                                      )
+    config.gpu_options.allow_growth = True
+    session = tf.compat.v1.Session(config=config)
+    tf.compat.v1.keras.backend.set_session(session)
     experiment_object.train_model(epochs=NO_OF_EPOCHS,
                                   validation_steps=VAL_STEPS, pretrained_weights=load,
                                   steps_per_epoch=STEP_PER_EPOCH)

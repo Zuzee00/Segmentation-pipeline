@@ -36,7 +36,7 @@ def resize_images_bilinear(X, height_factor=1, width_factor=1, target_height=Non
         else:
             new_shape = tf.shape(X)[1:3]
             new_shape *= tf.constant(np.array([height_factor, width_factor]).astype('int32'))
-        X = tf.image.resize_bilinear(X, new_shape)
+        X = tf.compat.v1.image.resize_bilinear(X, new_shape)
         if target_height and target_width:
             X.set_shape((None, target_height, target_width, None))
         else:

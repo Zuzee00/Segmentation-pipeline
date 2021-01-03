@@ -40,7 +40,7 @@ def transfer_FCN_Vgg16():
     x = Conv2D(512, (3, 3), activation='relu', padding='same', name='block5_conv3')(x)
     x = MaxPooling2D((2, 2), strides=(2, 2), name='block5_pool')(x)
 
-    # Convolutional layers transfered from fully-connected layers
+    # Convolutional layers transferred from fully-connected layers
     x = Conv2D(4096, (7, 7), activation='relu', padding='same', name='fc1')(x)
     x = Conv2D(4096, (1, 1), activation='relu', padding='same', name='fc2')(x)
     x = Conv2D(1000, (1, 1), activation='linear', name='predictions_1000')(x)
@@ -66,9 +66,9 @@ def transfer_FCN_Vgg16():
             elif layer.name == 'fc2':
                 weights[0] = np.reshape(weights[0], (1, 1, 4096, 4096))
             elif layer.name == 'predictions':
-                layer.name = 'predictions_1000'
+                # layer.name = 'predictions_1000'
                 weights[0] = np.reshape(weights[0], (1, 1, 4096, 1000))
-            if index.has_key(layer.name):
+            if layer.name in index:
                 index[layer.name].set_weights(weights)
         model.save_weights(weights_path)
         print('Successfully transformed!')
@@ -138,9 +138,6 @@ def transfer_FCN_ResNet50():
 
 
 if __name__ == '__main__':
-    # if sys.argv[1] not in {'Vgg16', 'ResNet50'}:
-    #     print('Wrong argument! Model name must be Vgg16 or ResNet50.')
-    #     exit()
-    model = 'ResNet50'
+    model = 'Vgg16'
     func = globals()['transfer_FCN_%s' % model]
     func()
