@@ -3,70 +3,60 @@ import random
 import re
 from PIL import Image
 
-DATA_PATH = 'images_nearmap/'
-FRAME_PATH = DATA_PATH + 'images'
-MASK_PATH = DATA_PATH + 'annotations/binary'
 
-# Create folders to hold images and masks
+class SplitData:
+    def __init__(self, root_dir, images_path, masks_path, folder_names):
+        self.root_dir = root_dir
+        self.images_path = images_path
+        self.masks_path = masks_path
+        self.folders = folder_names
 
-folders = ['train_frames', 'train_masks', 'val_frames', 'val_masks', 'test_frames', 'test_masks']
+    def create_train_val_test_sets(self):
+        for folder_name in self.folders:
+            print(self.root_dir + folder_name)
+            if not os.path.exists(self.root_dir + folder_name):
+                os.makedirs(self.root_dir + folder_name)
 
-for folder in folders:
-    if not os.path.exists(DATA_PATH + folder):
-        os.makedirs(DATA_PATH + folder)
+        # Get all images and masks, sort them, shuffle them to generate data sets.
+        all_images = os.listdir(self.images_path)
+        all_masks = os.listdir(self.masks_path)
 
-# Get all frames and masks, sort them, shuffle them to generate data sets.
+        all_images.sort(key=lambda var: [x if x.isdigit() else x
+                                         for x in re.findall(r'[^0-9]|[0-9]+', var)])
+        all_masks.sort(key=lambda var: [x if x.isdigit() else x
+                                        for x in re.findall(r'[^0-9]|[0-9]+', var)])
 
-all_frames = os.listdir(FRAME_PATH)
-all_masks = os.listdir(MASK_PATH)
+        random.seed(230)
+        random.shuffle(all_images)
 
-all_frames.sort(key=lambda var: [x if x.isdigit() else x
-                                 for x in re.findall(r'[^0-9]|[0-9]+', var)])
-all_masks.sort(key=lambda var: [x if x.isdigit() else x
-                                for x in re.findall(r'[^0-9]|[0-9]+', var)])
+        # Generate train, val, and test sets for frames
 
-random.seed(230)
-random.shuffle(all_frames)
+        train_split = int(0.7 * len(all_images))
+        val_split = int(0.9 * len(all_images))
 
-# Generate train, val, and test sets for frames
+        train_images = all_images[:train_split]
+        val_images = all_images[train_split:val_split]
+        test_images = all_images[val_split:]
 
-train_split = int(0.7 * len(all_frames))
-val_split = int(0.9 * len(all_frames))
+        # Add train, val, test images and masks to relevant folders
+        frame_folders = [(train_images, 'train_images'), (val_images, 'val_images'),
+                         (test_images, 'test_images')]
 
-train_frames = all_frames[:train_split]
-val_frames = all_frames[train_split:val_split]
-test_frames = all_frames[val_split:]
+        # Add frames and masks
+        for folder in frame_folders:
+            array = folder[0]
+            name = [folder[1]] * len(array)
 
-# Generate corresponding mask lists for masks
+            list(map(self.add_frames_and_masks, name, array))
 
-train_masks = [f for f in all_masks if f in train_frames]
-val_masks = [f for f in all_masks if f in val_frames]
-test_masks = [f for f in all_masks if f in test_frames]
+    def add_frames_and_masks(self, dir_name, image):
+        print(self.images_path + '/{}'.format(image))
 
+        img = Image.open(self.images_path + '/{}'.format(image))
+        img.save(self.root_dir + '{}'.format(dir_name) + '/' + image)
 
-# Add train, val, test frames and masks to relevant folders
-
-
-def add_frames_and_masks(dir_name, image):
-    print(FRAME_PATH + '/{}'.format(image))
-
-    img = Image.open(FRAME_PATH + '/{}'.format(image))
-    img.save(DATA_PATH + '/{}'.format(dir_name) + '/' + image)
-
-    # Add masks
-    dir_name_1 = dir_name.replace('frames', 'masks')
-    image_1 = image.replace('jpg', 'png')
-    mask = Image.open(MASK_PATH + '/{}'.format(image_1))
-    mask.save(DATA_PATH + '/{}'.format(dir_name_1) + '/' + image_1)
-
-
-frame_folders = [(train_frames, 'train_frames'), (val_frames, 'val_frames'),
-                 (test_frames, 'test_frames')]
-
-# Add frames and masks
-
-for folder in frame_folders:
-    array = folder[0]
-    name = [folder[1]] * len(array)
-
-    list(map(add_frames_and_masks, name, array))
+        # Add masks
+        dir_name_1 = dir_name.replace('frames', 'masks')
+        image_1 = image.replace('jpg', 'png')
+        mask = Image.open(self.masks_path + '/{}'.format(image_1))
+        mask.save(self.root_dir + '/{}'.format(dir_name_1) + '/' + image_1)
