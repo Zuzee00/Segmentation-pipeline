@@ -1,0 +1,13 @@
+{
+    "root_dir": "images_nearmap/",
+    "images_path": "images_nearmap/images",
+    "masks_path": "images_nearmap/annotations",
+    "folders": [
+        "train_images",
+        "train_masks",
+        "val_images",
+        "val_masks",
+        "test_images",
+        "test_masks"
+    ]
+}

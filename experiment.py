@@ -106,7 +106,6 @@ class Experiment:
                 for j in range(0, img.shape[0], patch_width):
 
                     temp_img = img[i:i + 64, j:j + 64, :]
-                    # print(temp_img.shape)
 
                     if temp_img.shape[0] == 0 or temp_img.shape[1] == 0:
                         print("skipped")
